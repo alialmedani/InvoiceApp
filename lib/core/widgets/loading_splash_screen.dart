@@ -290,7 +290,7 @@ class _EnkiSignatureLoadingOverlayState
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      "ENKI",
+                      "JASIM",
                       style: AppTextStyle.getBoldStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
