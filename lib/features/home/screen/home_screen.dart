@@ -7,9 +7,11 @@ import 'package:invoice/core/constant/text_styles/app_text_style.dart';
 import 'package:invoice/core/utils/Navigation/navigation.dart';
 import 'package:invoice/features/invoices/cubit/invoices_cubit.dart';
 import 'package:invoice/features/invoices/data/model/invoice_model.dart';
+import 'package:invoice/features/invoices/screen/create_invoice_screen.dart';
 import 'package:invoice/features/invoices/screen/invoice_details_screen.dart';
 import 'package:invoice/features/quotations/cubit/quotations_cubit.dart';
 import 'package:invoice/features/quotations/data/model/quotation_model.dart';
+import 'package:invoice/features/quotations/screen/create_quotation_screen.dart';
 import 'package:invoice/features/quotations/screen/quotation_details_screen.dart';
 import 'package:invoice/features/shared/utils/document_format.dart';
 import 'package:invoice/features/shared/widgets/document_card.dart';
@@ -40,6 +42,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.getBackground(context),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigation.push(
+          _segment == 0
+              ? const CreateInvoiceScreen()
+              : const CreateQuotationScreen(),
+        ),
+        backgroundColor: AppColors.getPrimary(context),
+        foregroundColor: AppColors.getCard(context),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        icon: const Icon(Icons.add_rounded, size: 20),
+        label: Text(
+          _segment == 0 ? 'new_invoice'.tr() : 'new_offer'.tr(),
+          style: AppTextStyle.getSemiBoldStyle(
+            fontSize: 13.5,
+            color: AppColors.getCard(context),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),

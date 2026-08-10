@@ -7,10 +7,13 @@ import 'package:invoice/core/utils/Navigation/navigation.dart';
 import 'package:invoice/features/home/screen/home_screen.dart';
 import 'package:invoice/features/invoices/cubit/invoices_cubit.dart';
 import 'package:invoice/features/invoices/data/mock/mock_invoices.dart';
+import 'package:invoice/features/invoices/screen/create_invoice_screen.dart';
 import 'package:invoice/features/invoices/screen/invoice_details_screen.dart';
 import 'package:invoice/features/quotations/cubit/quotations_cubit.dart';
 import 'package:invoice/features/quotations/data/mock/mock_quotations.dart';
+import 'package:invoice/features/quotations/screen/create_quotation_screen.dart';
 import 'package:invoice/features/quotations/screen/quotation_details_screen.dart';
+import 'package:invoice/features/shared/models/mock_seller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Drives the whole app through every screen with every mock document at a
@@ -78,5 +81,70 @@ void main() {
       Navigation.pop();
       await tester.pumpAndSettle();
     }
+
+    // Create-offer flow: offers tab → FAB → quick-pick customer → add item
+    // → save → lands on the new offer's details screen.
+    await tester.tap(find.text('Price Offers'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(CreateQuotationScreen), findsOneWidget);
+
+    await tester.tap(find.text(mockCustomers.first.name));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Add item'));
+    await tester.tap(find.text('Add item'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('item_name_field')),
+      'Test consulting service',
+    );
+    await tester.enterText(find.byKey(const Key('item_qty_field')), '2');
+    await tester.enterText(
+      find.byKey(const Key('item_price_field')),
+      '150000',
+    );
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Save offer'));
+    await tester.pumpAndSettle();
+    expect(find.byType(QuotationDetailsScreen), findsOneWidget);
+    expect(find.text('Test consulting service'), findsOneWidget);
+
+    // Create-invoice flow: back home → invoices tab → FAB → quick-pick
+    // customer → add item → save → lands on the new invoice's details.
+    Navigation.pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Invoices'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(CreateInvoiceScreen), findsOneWidget);
+
+    await tester.tap(find.text(mockCustomers.first.name));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Add item'));
+    await tester.tap(find.text('Add item'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('item_name_field')),
+      'Test hardware delivery',
+    );
+    await tester.enterText(find.byKey(const Key('item_qty_field')), '3');
+    await tester.enterText(
+      find.byKey(const Key('item_price_field')),
+      '250000',
+    );
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Save invoice'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InvoiceDetailsScreen), findsOneWidget);
+    expect(find.text('Test hardware delivery'), findsOneWidget);
   });
 }
