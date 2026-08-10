@@ -1,6 +1,6 @@
 import 'package:invoice/core/constant/app_colors/app_colors.dart';
 import 'package:invoice/core/utils/Navigation/navigation.dart';
-import 'package:invoice/features/home/screen/home_screen.dart';
+import 'package:invoice/features/shell/screen/main_shell_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/loading_splash_screen.dart';
@@ -20,10 +20,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _initializeApp() async {
-    // Brief branded splash, then straight into the documents hub.
+    // Brief branded splash, then straight into the app shell.
     await Future.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
-    Navigation.pushAndRemoveUntil(const HomeScreen());
+    Navigation.pushAndRemoveUntil(const MainShellScreen());
   }
 
   @override

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:invoice/core/classes/keys.dart';
 import 'package:invoice/core/utils/Navigation/navigation.dart';
-import 'package:invoice/features/home/screen/home_screen.dart';
 import 'package:invoice/features/invoices/cubit/invoices_cubit.dart';
 import 'package:invoice/features/invoices/data/mock/mock_invoices.dart';
 import 'package:invoice/features/invoices/screen/create_invoice_screen.dart';
@@ -14,6 +13,7 @@ import 'package:invoice/features/quotations/data/mock/mock_quotations.dart';
 import 'package:invoice/features/quotations/screen/create_quotation_screen.dart';
 import 'package:invoice/features/quotations/screen/quotation_details_screen.dart';
 import 'package:invoice/features/shared/models/mock_seller.dart';
+import 'package:invoice/features/shell/screen/main_shell_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Drives the whole app through every screen with every mock document at a
@@ -52,18 +52,24 @@ void main() {
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
               locale: context.locale,
-              home: const HomeScreen(),
+              home: const MainShellScreen(),
             ),
           ),
         ),
       ),
     );
 
-    // Let translations load and the mock fetch (700 ms) complete.
+    // Let translations load and the mock fetch (700 ms, triggered centrally
+    // by MainShellScreen.initState) complete.
     for (int i = 0; i < 30; i++) {
       await tester.pump(const Duration(milliseconds: 100));
       if (find.text(mockInvoices.first.number).evaluate().isNotEmpty) break;
     }
+    await tester.pumpAndSettle();
+
+    // --- Invoices tab ---
+    await tester.tap(find.byKey(const Key('nav_invoices')));
+    await tester.pumpAndSettle();
     expect(find.text(mockInvoices.first.number), findsOneWidget);
 
     for (final invoice in mockInvoices) {
@@ -74,6 +80,11 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    // --- Quotations tab ---
+    await tester.tap(find.byKey(const Key('nav_quotations')));
+    await tester.pumpAndSettle();
+    expect(find.text(mockQuotations.first.number), findsOneWidget);
+
     for (final quotation in mockQuotations) {
       Navigation.push(QuotationDetailsScreen(quotation: quotation));
       await tester.pumpAndSettle();
@@ -82,11 +93,11 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    // Create-offer flow: offers tab → FAB → quick-pick customer → add item
-    // → save → lands on the new offer's details screen.
-    await tester.tap(find.text('Price Offers'));
+    // Create-offer flow: Create tab → quotation card → quick-pick customer
+    // → add item → save → lands on the new offer's details screen.
+    await tester.tap(find.byKey(const Key('nav_create')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(FloatingActionButton));
+    await tester.tap(find.byKey(const Key('create_quotation_card')));
     await tester.pumpAndSettle();
     expect(find.byType(CreateQuotationScreen), findsOneWidget);
 
@@ -114,13 +125,14 @@ void main() {
     expect(find.byType(QuotationDetailsScreen), findsOneWidget);
     expect(find.text('Test consulting service'), findsOneWidget);
 
-    // Create-invoice flow: back home → invoices tab → FAB → quick-pick
-    // customer → add item → save → lands on the new invoice's details.
+    // Create-invoice flow: back to the shell → Create tab → invoice card →
+    // quick-pick customer → add item → save → lands on the new invoice's
+    // details screen.
     Navigation.pop();
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Invoices'));
+    await tester.tap(find.byKey(const Key('nav_create')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(FloatingActionButton));
+    await tester.tap(find.byKey(const Key('create_invoice_card')));
     await tester.pumpAndSettle();
     expect(find.byType(CreateInvoiceScreen), findsOneWidget);
 
@@ -146,5 +158,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(InvoiceDetailsScreen), findsOneWidget);
     expect(find.text('Test hardware delivery'), findsOneWidget);
+
+    // --- Remaining nav destinations render without exceptions ---
+    Navigation.pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav_home')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav_account')));
+    await tester.pumpAndSettle();
   });
 }

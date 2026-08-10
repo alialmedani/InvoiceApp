@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:invoice/core/classes/cashe_helper.dart';
 import 'package:invoice/core/classes/keys.dart';
 import 'package:invoice/core/constant/app_theme/app_theme.dart';
+import 'package:invoice/core/cubit/theme_cubit.dart';
 import 'package:invoice/core/di/injection.dart';
 import 'package:invoice/core/ui/screens/splash_screen.dart';
 import 'package:invoice/features/invoices/cubit/invoices_cubit.dart';
@@ -38,39 +39,49 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => getIt<InvoicesCubit>()),
         BlocProvider(create: (_) => getIt<QuotationsCubit>()),
+        BlocProvider(create: (_) => getIt<ThemeCubit>()),
       ],
       child: ScreenUtilInit(
         minTextAdapt: true,
         useInheritedMediaQuery: true,
         splitScreenMode: false,
-        child: MaterialApp(
-          navigatorKey: Keys.navigatorKey,
-          debugShowCheckedModeBanner: false,
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            ...context.localizationDelegates,
-          ],
-          supportedLocales: const [Locale('en'), Locale('ar'), Locale('ku')],
-          locale: context.locale,
-          localeResolutionCallback: (locale, supportedLocales) {
-            // Kurdish is not supported by Material/Cupertino, use English for system widgets
-            if (locale?.languageCode == 'ku') {
-              return const Locale('en');
-            }
-            for (var supportedLocale in supportedLocales) {
-              if (supportedLocale.languageCode == locale?.languageCode) {
-                return supportedLocale;
-              }
-            }
-            return const Locale('en');
+        child: Builder(
+          builder: (context) {
+            final themeMode = context.watch<ThemeCubit>().state;
+            return MaterialApp(
+              navigatorKey: Keys.navigatorKey,
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                ...context.localizationDelegates,
+              ],
+              supportedLocales: const [
+                Locale('en'),
+                Locale('ar'),
+                Locale('ku'),
+              ],
+              locale: context.locale,
+              localeResolutionCallback: (locale, supportedLocales) {
+                // Kurdish is not supported by Material/Cupertino, use English for system widgets
+                if (locale?.languageCode == 'ku') {
+                  return const Locale('en');
+                }
+                for (var supportedLocale in supportedLocales) {
+                  if (supportedLocale.languageCode == locale?.languageCode) {
+                    return supportedLocale;
+                  }
+                }
+                return const Locale('en');
+              },
+              theme: appThemeData[AppTheme.light],
+              darkTheme: appThemeData[AppTheme.dark],
+              themeMode: themeMode,
+              title: 'Jasim Invoice',
+              home: const SplashScreen(),
+            );
           },
-          theme: appThemeData[AppTheme.light],
-          darkTheme: appThemeData[AppTheme.dark],
-          themeMode: ThemeMode.light,
-          title: 'Jasim Invoice',
-          home: const SplashScreen(),
         ),
       ),
     );
