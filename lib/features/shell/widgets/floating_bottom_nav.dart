@@ -1,4 +1,7 @@
-import 'package:easy_localization/easy_localization.dart';
+// `hide TextDirection`: easy_localization re-exports intl's TextDirection
+// (RTL/LTR constants), which otherwise shadows dart:ui's TextDirection
+// (rtl/ltr) needed for Directionality checks below.
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:invoice/core/constant/app_colors/app_colors.dart';
@@ -133,19 +136,21 @@ class _FloatingBottomNavState extends State<FloatingBottomNav>
                     ),
                 ],
               ),
-              IgnorePointer(
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) {
-                    return Positioned(
-                      left: _controller.value - circleSize / 2,
-                      top: (barHeight - circleSize) / 2,
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  return Positioned(
+                    left: _controller.value - circleSize / 2,
+                    top: (barHeight - circleSize) / 2,
+                    // Decorative — taps must fall through to the Row's
+                    // InkWells beneath it, regardless of z-order.
+                    child: IgnorePointer(
                       child: _ActiveCircle(
                         destination: navDestinations[widget.currentIndex],
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

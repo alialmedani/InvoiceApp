@@ -124,6 +124,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(QuotationDetailsScreen), findsOneWidget);
     expect(find.text('Test consulting service'), findsOneWidget);
+    // The "Offer created" SnackBar has a 4s auto-dismiss timer that
+    // pumpAndSettle() won't wait out on its own (nothing keeps scheduling
+    // frames once its entrance animation finishes) — flush it explicitly so
+    // it doesn't linger over the floating bottom nav for the next tap.
+    await tester.pump(const Duration(seconds: 5));
 
     // Create-invoice flow: back to the shell → Create tab → invoice card →
     // quick-pick customer → add item → save → lands on the new invoice's
@@ -158,13 +163,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(InvoiceDetailsScreen), findsOneWidget);
     expect(find.text('Test hardware delivery'), findsOneWidget);
+    // Same SnackBar-timer flush as above, before tapping the bottom nav again.
+    await tester.pump(const Duration(seconds: 5));
 
     // --- Remaining nav destinations render without exceptions ---
     Navigation.pop();
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('nav_home')));
     await tester.pumpAndSettle();
+    expect(find.text('Welcome back'), findsOneWidget);
     await tester.tap(find.byKey(const Key('nav_account')));
     await tester.pumpAndSettle();
+    expect(find.text('Ahmed Al-Jasim'), findsOneWidget);
   });
 }
