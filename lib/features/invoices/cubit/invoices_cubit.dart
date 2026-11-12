@@ -35,4 +35,9 @@ class InvoicesCubit extends Cubit<InvoicesState> {
   void addInvoice(InvoiceModel invoice) {
     emit(InvoicesLoaded([invoice, ..._current]));
   }
+
+  /// Local-only delete; becomes a DeleteInvoice UseCase with the API.
+  void deleteInvoice(String id) {
+    emit(InvoicesLoaded(_current.where((i) => i.id != id).toList()));
+  }
 }

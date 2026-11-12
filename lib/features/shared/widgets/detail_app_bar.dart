@@ -4,11 +4,15 @@ import 'package:invoice/core/constant/text_styles/app_text_style.dart';
 import 'package:invoice/core/utils/Navigation/navigation.dart';
 
 /// Minimal flat app bar for document detail screens: circular back button,
-/// centered title, symmetric trailing space.
+/// centered title, and either a trailing action or a symmetric spacer.
 class DetailAppBar extends StatelessWidget {
-  const DetailAppBar({super.key, required this.title});
+  const DetailAppBar({super.key, required this.title, this.trailing});
 
   final String title;
+
+  /// Optional 42px-wide action (e.g. delete) shown opposite the back
+  /// button; when null a same-width spacer keeps the title centered.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +55,7 @@ class DetailAppBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 42),
+          trailing ?? const SizedBox(width: 42),
         ],
       ),
     );

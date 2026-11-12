@@ -175,5 +175,38 @@ void main() {
     await tester.tap(find.byKey(const Key('nav_account')));
     await tester.pumpAndSettle();
     expect(find.text('Ahmed Al-Jasim'), findsOneWidget);
+
+    // --- Delete invoice: cancel keeps it, confirm removes it everywhere ---
+    Navigation.push(InvoiceDetailsScreen(invoice: mockInvoices.first));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('delete_document_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('cancel_delete_button')));
+    await tester.pumpAndSettle();
+    expect(find.byType(InvoiceDetailsScreen), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('delete_document_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('confirm_delete_button')));
+    await tester.pumpAndSettle();
+    expect(find.byType(InvoiceDetailsScreen), findsNothing);
+    // Flush the "Invoice deleted" SnackBar's 4s timer before nav taps.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.tap(find.byKey(const Key('nav_invoices')));
+    await tester.pumpAndSettle();
+    expect(find.text(mockInvoices.first.number), findsNothing);
+
+    // --- Delete quotation: confirm removes it everywhere ---
+    Navigation.push(QuotationDetailsScreen(quotation: mockQuotations.first));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('delete_document_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('confirm_delete_button')));
+    await tester.pumpAndSettle();
+    expect(find.byType(QuotationDetailsScreen), findsNothing);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.tap(find.byKey(const Key('nav_quotations')));
+    await tester.pumpAndSettle();
+    expect(find.text(mockQuotations.first.number), findsNothing);
   });
 }

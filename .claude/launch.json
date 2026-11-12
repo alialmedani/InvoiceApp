@@ -4,8 +4,8 @@
     {
       "name": "invoice-web",
       "runtimeExecutable": "flutter",
-      "runtimeArgs": ["run", "-d", "web-server", "--web-port=8123"],
-      "port": 8123
+      "runtimeArgs": ["run", "-d", "web-server", "--web-port=8129"],
+      "port": 8129
     }
   ]
 }

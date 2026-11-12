@@ -35,4 +35,9 @@ class QuotationsCubit extends Cubit<QuotationsState> {
   void addQuotation(QuotationModel quotation) {
     emit(QuotationsLoaded([quotation, ..._current]));
   }
+
+  /// Local-only delete; becomes a DeleteQuotation UseCase with the API.
+  void deleteQuotation(String id) {
+    emit(QuotationsLoaded(_current.where((q) => q.id != id).toList()));
+  }
 }
